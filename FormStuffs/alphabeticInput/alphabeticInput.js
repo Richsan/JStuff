@@ -6,10 +6,10 @@ JStuff.alphabeticInput = function()
    
    var shiftIsPressed = false;
 
-   function keyCodeIsAlpha(keyCode)
+   function keyCodeIsAlpha(key)
    {
 
-		return (keyCode >= keyAscii["A"] && keyCode <= keyAscii["Z"]) || (keyCode >= keyAscii["a"] && keyCode <= keyAscii["z"]);
+		return (key >= keyCode["A"] && key <= keyCode["Z"]) || (key >= keyCode["a"] && key <= keyCode["z"]);
 
    }
    function alphabeticTyping(event)
@@ -19,7 +19,7 @@ JStuff.alphabeticInput = function()
 		if(isCursorMoveORBackspaceDel(key))
 			return;
 
-		if(key == keyAscii["enter"] || key == keyAscii["tab"])
+		if(key == keyCode["enter"] || key == keyCode["tab"])
 			return;
 
 		maxInput.call(this, this.maxChars,event);

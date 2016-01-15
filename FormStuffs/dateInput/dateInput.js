@@ -49,7 +49,7 @@ JStuff.dateInput = function()
    function dateTyping(event)
    {
 		var key = event.keyCode || event.charCode;
-		if(key == keyAscii["backspace"])
+		if(key == keyCode["backspace"])
 			return;
 
 		numberMaskInput.numMaskTyping.call(this,event);

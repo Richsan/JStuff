@@ -38,11 +38,11 @@ JStuff.numberInput = function()
 		if(isCursorMoveORBackspaceDel(key))
 			return;
 
-		if(key == keyAscii["enter"] || key == keyAscii["tab"])
+		if(key == keyCode["enter"] || key == keyCode["tab"])
 			return;
 
 		maxInput.call(this, this.maxChars, event);
-		if(key >= keyAscii["0"] && key <= keyAscii["9"])
+		if(key >= keyCode["0"] && key <= keyCode["9"])
 		{
 			if(this.maxNum && !this.exceptList)
 			{
