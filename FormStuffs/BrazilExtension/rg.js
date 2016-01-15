@@ -10,11 +10,11 @@ var numberMaskInput = function()
    {
 		var key = event.keyCode || event.charCode;
 
-		if(key == keyAscii["enter"] || key == keyAscii["tab"])
+		if(key == keyCode["enter"] || key == keyCode["tab"])
 			return;
 
 
-		if(key < keyAscii["0"] || key > keyAscii["9"])
+		if(key < keyCode["0"] || key > keyCode["9"])
 		{
 			event.preventDefault();
 			return;
@@ -30,7 +30,7 @@ var numberMaskInput = function()
 			event.preventDefault();
 			return;
 		}
-		if(key == keyAscii["left"])
+		if(key == keyCode["left"])
 		{
 			event.preventDefault();
 			return;
@@ -92,7 +92,7 @@ JStuff.rgInput = function()
    function rgTyping(event)
    {
 		var key = event.keyCode || event.charCode;
-		if(key == keyAscii["backspace"])
+		if(key == keyCode["backspace"])
 			return;
 
 		numberMaskInput.numMaskTyping.call(this,event);

@@ -1,5 +1,5 @@
 //refatorar para keyNum
-var keyAscii = {"0":48, "9":57, ",":44, "backspace":8,"del" : 46,
+var keyCode = {"0":48, "9":57, ",":44, "backspace":8,"del" : 46,
 					 ".":46, "right" : 39, "left": 37, "a": 65, "z": 90, "A": 97, "Z": 122,
 					 "ç": 231, "Ç": 199, "enter": 13, "tab": 9};
 
@@ -7,8 +7,8 @@ var arrows = {right: 0, left: 0};
 
 function isCursorMoveORBackspaceDel(key)
 {
-   if(key == keyAscii["right"] || key == keyAscii["left"]
-      || key == keyAscii["backspace"] || key == keyAscii["del"])
+   if(key == keyCode["right"] || key == keyCode["left"]
+      || key == keyCode["backspace"] || key == keyCode["del"])
 		return true;
 
    return false;
@@ -28,16 +28,16 @@ function decimalTextComplete(obj)
 }
 function isDigit(keyVal)
 {
-   return keyVal >= keyAscii["0"] && keyVal <= keyAscii["9"];
+   return keyVal >= keyCode["0"] && keyVal <= keyCode["9"];
 }
 
 function onlyNumbers(key, event)
 {
-   if(key == keyAscii["backspace"] || key == keyAscii["del"])
+   if(key == keyCode["backspace"] || key == keyCode["del"])
 		return false;
    if(!isDigit(key))
    {
-		if(key != keyAscii["right"] && key != keyAscii["left"])
+		if(key != keyCode["right"] && key != keyCode["left"])
 		{
 			event.preventDefault();
 			return false;

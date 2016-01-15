@@ -33,18 +33,18 @@ JStuff.priceInput = function()
 
 		else if(getCaretPosition(this) < 3)
 		{
-			if(key != keyAscii["backspace"]
-				&& key != keyAscii["right"] && key != keyAscii["left"])
+			if(key != keyCode["backspace"]
+				&& key != keyCode["right"] && key != keyCode["left"])
 				event.preventDefault();
 			return;
 		}
 
 		if(getCaretPosition(this) >= this.value.length -2)
 		{
-			if(regexp2.test(this.value) && key != keyAscii["backspace"]
-				&& key != keyAscii["right"] && key != keyAscii["left"])
+			if(regexp2.test(this.value) && key != keyCode["backspace"]
+				&& key != keyCode["right"] && key != keyCode["left"])
 			{
-				if(key != keyAscii["backspace"])
+				if(key != keyCode["backspace"])
 					event.preventDefault();
 				return;
 			}
@@ -95,13 +95,13 @@ JStuff.priceInput = function()
 		}
 	   
 
-		if(key == keyAscii["del"])
+		if(key == keyCode["del"])
 		{
 			event.preventDefault();
 			return;
 		}
 
-		if(key == keyAscii["backspace"])
+		if(key == keyCode["backspace"])
 		{
 			if(regexp.test(this.value) && getCaretPosition(this) <= symbol.text.length)
 			{
@@ -153,9 +153,3 @@ JStuff.priceInput = function()
 
    return {turnOn};
 }();
-
-/*window.onload = function(){
-
-  priceInput.eval(["preco"],"dolar");
-  };
-*/
