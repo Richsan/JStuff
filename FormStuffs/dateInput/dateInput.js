@@ -49,17 +49,23 @@ JStuff.dateInput = function()
    function dateTyping(event)
    {
 		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
+		var size = this.value.length;
+		var maxInput = JStuff.util.maxInput;
+		var numberMaskInput = JStuff.util.numberMaskInput;
+
 		if(key == keyCode["backspace"])
 			return;
 
 		numberMaskInput.numMaskTyping.call(this,event);
 		maxInput.call(this, 10, event);
-		var size = this.value.length;
+
 		if(size == this.dateFormat.daySize || size == this.dateFormat.monthSize)
 		{
 			setTimeout(inputVerification.bind(this,size),0);		
 			size = this.value.length;
 		}
+
 		if(this.dateFormat.daySize == 9)
 		{
 			if(size == 4 || size == 7)
@@ -72,7 +78,7 @@ JStuff.dateInput = function()
 
    function dateKeyDown(event)
    {
-		numberMaskInput.numMaskKeyDown.call(this,event);
+		JStuff.util.numberMaskInput.numMaskKeyDown.call(this,event);
    }
 
    function getCurrentDate()
@@ -105,11 +111,13 @@ JStuff.dateInput = function()
    {
 		
 		if(properties["separator"].length > 1)
-			throw "JStuff dateInput Error: separator should be a singe size character.";
+			throw "JStuff dateInput Error: separator should be a single size character.";
 		
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
+			var numberMaskInput = JStuff.util.numberMaskInput;
+			
 			obj.separator = "/";
 			obj.dateFormat = formats["MiddleEndian"];
 

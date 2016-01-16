@@ -2,36 +2,23 @@ if(!JStuff)
 	var JStuff = {};
 
 
-function createHTTPRequestObject()
-{
-   var obj;
-   
-   if (window.XMLHttpRequest)
-		obj =new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
-   else
-		obj =new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
-   
-   return obj;
-}
-
-function stateChange(func)
-{
-   if((this.readyState == 4 || this.readyState == "complete") && this.status == 200)
-		func(this.responseText);
-}
-
 JStuff.CEPInput = function()
 {
    function CEPTyping(event)
    {
 		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
+		var numberMaskInput = JStuff.util.numberMaskInput;
+		var maxInput = JStuff.util.maxInput;
+		var size = this.value.length;
+
 		if(key == keyCode["backspace"])
 			return;
 
 		numberMaskInput.numMaskTyping.call(this,event);
 
 		maxInput.call(this, 9, event);
-		var size = this.value.length;
+		
 		if(size == 5)
 			this.value = this.value + "-";
 		
@@ -91,6 +78,8 @@ JStuff.CEPInput = function()
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
+			var numberMaskInput = JStuff.util.numberMaskInput;
+
 			obj.onkeypress = CEPTyping;
 			obj.onkeyup = numberMaskInput.numMaskKeyUp;
 			obj.onkeydown = numberMaskInput.numMaskKeyDown;

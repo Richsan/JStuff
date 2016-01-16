@@ -1,7 +1,10 @@
 if(!JStuff)
 	var JStuff = {};
 
-var moneySymbols = 
+
+JStuff.priceInput = function()
+{
+	var moneySymbols = 
 	{
 		"real": {text: "R$ ", separator: ",", regexp1: /^R\$\s/, regexp2: /R\$ [,|.]/},
 		"dollar": {text: "$ ", separator: ".", regexp1: /^\$\s/, regexp2: /\$ [,|.]/},
@@ -11,16 +14,19 @@ var moneySymbols =
 	};
 
 
-JStuff.priceInput = function()
-{
    var  symbol = moneySymbols["real"];
    var shiftIsPressed = false;
    var mousedown = false;
+
+
 
    function priceTyping(symbol, event)
    {
 		var regexp = /[,|.]/, regexp2 = /[,|.]\d\d/;
 		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
+		var getCaretPosition = JStuff.util.getCaretPosition;
+		var onlyNumbers = JStuff.util.onlyNumbers;
 
 		if(!onlyNumbers(key, event))
 			return;
@@ -62,7 +68,9 @@ JStuff.priceInput = function()
    {
 		var regexp = symbol.regexp1;
 		var key = event.keyCode || event.charCode;
-		
+		var getCaretPosition = JStuff.util.getCaretPosition;
+		var keyCode = JStuff.util.keyCode;
+
 		if(mousedown)
 		{
 			event.preventDefault();
@@ -121,6 +129,8 @@ JStuff.priceInput = function()
    function priceFocusOut(symbol,event)
    {
 		var regexp3 = symbol.regexp2;
+		var decimalTextComplete = JStuff.util.decimalTextComplete;
+
 		decimalTextComplete(this);
 		
 		if(regexp3.test(this.value))
@@ -137,6 +147,7 @@ JStuff.priceInput = function()
 		var atribEvents = function(element, index)
 		{
 			var obj = document.getElementById(element);
+
 			obj.onkeypress = priceTyping.bind(obj,symbol);
 			obj.onkeyup = function(event){var key = event.keyCode || event.charCode; if(key == 16)shiftIsPressed = false;};
 			obj.onkeydown = priceKeyDown.bind(obj, symbol);

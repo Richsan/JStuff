@@ -36,13 +36,18 @@ JStuff.timeInput = function()
    function timeTyping(event)
    {
 		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.numberMaskInput;
+		var maxInput = JStuff.util.maxInput;
+		var numberMaskInput = JStuff.util.numberMaskInput;
+		var size = this.value.length;
+
 		if(key == keyCode["backspace"])
 			return;
 
 		numberMaskInput.numMaskTyping.call(this,event);
 		maxInput.call(this,5,event);
 
-		var size = this.value.length;
+		
 		if(size == 1 || size == 4)
 		{
 			setTimeout( inputVerification.bind(this,size),0);
@@ -58,6 +63,8 @@ JStuff.timeInput = function()
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
+			var numberMaskInput = JStuff.util.numberMaskInput;
+
 			obj.onkeypress = timeTyping;
 			obj.onkeyup = numberMaskInput.numMaskKeyUp;
 			obj.onkeydown = numberMaskInput.numMaskKeyDown;

@@ -6,15 +6,16 @@ JStuff.alphabeticInput = function()
    
    var shiftIsPressed = false;
 
-   function keyCodeIsAlpha(key)
-   {
 
-		return (key >= keyCode["A"] && key <= keyCode["Z"]) || (key >= keyCode["a"] && key <= keyCode["z"]);
-
-   }
    function alphabeticTyping(event)
    {
 		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
+		var isCursorMoveORBackspaceDel = JStuff.util.isCursorMoveORBackspaceDel;
+		var getCaretPosition = JStuff.util.getCaretPosition;
+		var keyCodeIsAlpha = JStuff.util.isAlpha;
+		var exceptionListEval = JStuff.util.exceptionListEval;
+		var maxInput = JStuff.util.maxInput;
 
 		if(isCursorMoveORBackspaceDel(key))
 			return;
@@ -30,18 +31,22 @@ JStuff.alphabeticInput = function()
 		exceptionListEval.call(this,this.exceptList,event,getCaretPosition(this));
    }
 
-   function eval(idList, properties)
+   function turnOn(idList, properties)
    {
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
+			var getCaretPosition = JStuff.util.getCaretPosition;
+			var exceptionListEval = JStuff.util.exceptionListEval;
+
 			obj.exceptList = properties.exceptionList;
 			obj.maxChars  = properties.maxLength;
 			obj.onkeypress = alphabeticTyping.bind(obj);
 			obj.onkeyup = function(event){var key = event.keyCode || event.charCode; if(key == 16)shiftIsPressed = false;};
 
 			//That's for semicolon/dot/accent keys
-			obj.onkeydown = function(event){
+			obj.onkeydown = function(event)
+			{
 				var key = event.keyCode || event.charCode;
 				if(key == 16)
 					shiftIsPressed = true;
@@ -63,6 +68,7 @@ JStuff.alphabeticInput = function()
 		else
 			atribEvents(idList);
 	}
-	return {turnOn: eval};
+	
+	return {turnOn};
 	
 }();

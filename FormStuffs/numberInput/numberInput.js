@@ -1,39 +1,19 @@
 if(!JStuff)
 	var JStuff = {};
 
-function exceptionListEval(exceptList,event, carretPos)
-{
-   if(!exceptList)
-   {
-		event.preventDefault();
-		return;
-   }
-   setTimeout(function() { 
-      var charDigited = this.value.slice(carretPos,carretPos+1);
-		if(exceptList.indexOf(charDigited) == -1)
-			this.value = this.value.slice(0,carretPos) + this.value.slice(carretPos +1, this.value.length);
-   }.bind(this), 0);
-}
 
-function maxInput(maxChars, event)
-{
-   if(maxChars)
-   {
-		if(this.value.length >= maxChars)
-		{
-			event.preventDefault();
-			return;
-		}
-   }
-
-}
 JStuff.numberInput = function() 
 {
    var shiftIsPressed = false;
-   
+   var isCursorMoveORBackspaceDel = JStuff.util.isCursorMoveORBackspaceDel;
+	var keyCode = JStuff.util.keyCode;
+	var getCaretPosition = JStuff.util.getCaretPosition;
+	var exceptionListEval = JStuff.util.exceptionListEval;
+
    function numberTyping(event)
    {
 		var key = event.keyCode || event.charCode;
+		var maxInput = JStuff.util.maxInput;
 
 		if(isCursorMoveORBackspaceDel(key))
 			return;
@@ -65,6 +45,8 @@ JStuff.numberInput = function()
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
+			var getCaretPosition = JStuff.util.getCaretPosition;
+			
 			obj.exceptList = properties.exceptionList;
 			obj.maxChars  = properties.maxLength;
 			obj.maxNum = properties.limit;
