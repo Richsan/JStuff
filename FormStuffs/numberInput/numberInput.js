@@ -10,6 +10,13 @@ JStuff.numberInput = function()
 	var getCaretPosition = JStuff.util.getCaretPosition;
 	var exceptionListEval = JStuff.util.exceptionListEval;
 
+	var oldValue;
+	var currentCaretPos;
+
+	function numberInputChange(event)
+	{
+		
+	}
    function numberTyping(event)
    {
 		var key = event.keyCode || event.charCode;
