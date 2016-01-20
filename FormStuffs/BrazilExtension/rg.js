@@ -3,6 +3,7 @@ if(!JStuff)
 
 JStuff.rgInput = function()
 {
+	var mousedown = false;
 	function rgInputChange(event)
 	{
 		if(this.value.length > 12)
@@ -47,6 +48,19 @@ JStuff.rgInput = function()
 		this.value = JStuff.util.removeChar(this.value, currentCaretPos);
 		JStuff.util.setCaretPosition(this,currentCaretPos);		
 	}
+
+
+   function rgMouseDown(event)
+   {
+		mousedown = true;
+   }
+
+	function rgMouseUp(event)
+   {
+		mousedown = false;
+		JStuff.util.setCaretPosition(this,this.value.length);
+   }
+
    function rgTyping(event)
    {
 		currentCaretPos = JStuff.util.getCaretPosition(this);
@@ -62,10 +76,13 @@ JStuff.rgInput = function()
 		}
 
 		if(currentCaretPos < this.value.length)
-		{
-			JStuff.util.setCaretPosition(this,this.value.length);
-		}
-   }
+      {
+         JStuff.util.setCaretPosition(this,this.value.length);
+         currentCaretPos = this.value.length;
+         return;
+      }
+
+	}
 
    function turnOn(idList)
    {
@@ -76,8 +93,8 @@ JStuff.rgInput = function()
 
 			obj.onkeydown = rgTyping;
 			obj.oninput = rgInputChange;
-			//obj.onmousedown = numberMaskInput.numMaskMouseDown;
-			//obj.onmouseup = numberMaskInput.numMaskMouseUp;
+			obj.onmousedown = rgMouseDown;
+			obj.onmouseup = rgMouseUp;
 		}
 
 		if(typeof(idList) != 'string')
