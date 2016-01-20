@@ -2,12 +2,32 @@
 if(!JStuff)
 	var JStuff = {};
 
+
+JStuff.hasTouch = false;
+
+window.ontouchstart = function()
+{
+	JStuff.hasTouch = true;
+}
+
+
 JStuff.util = {};
 JStuff.util.keyCode = {"0":48, "9":57, ",":44, "backspace":8,"del" : 46,
 					".":46, "right" : 39, "left": 37, "a": 65, "z": 90, "A": 97, "Z": 122,
 					"ç": 231, "Ç": 199, "enter": 13, "tab": 9};
 
 JStuff.util.arrows = {right: 0, left: 0};
+
+JStuff.util.getUnicode = function(character)
+{
+	return character.charCodeAt(0);
+}
+
+JStuff.util.removeChar = function(str,idx)
+{
+	var ret = str.slice(0,idx) + str.slice(idx+1);
+	return ret;
+}
 
 JStuff.util.isCursorMoveORBackspaceDel = function(key)
 {
@@ -85,6 +105,11 @@ JStuff.util.getCaretPosition = function(oField)
 
 	return (iCaretPos);
 };
+
+JStuff.util.setCaretPosition = function(obj,pos)
+{
+	obj.setSelectionRange(pos,pos);
+}
 
 JStuff.util.exceptionListEval = function(exceptList,event, carretPos)
 {

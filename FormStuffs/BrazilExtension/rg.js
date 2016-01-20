@@ -3,25 +3,68 @@ if(!JStuff)
 
 JStuff.rgInput = function()
 {
-   function rgTyping(event)
-   {
-		var key = event.keyCode || event.charCode;
-		var numberMaskInput = JStuff.util.numberMaskInput;
-		var keyCode = JStuff.util.keyCode;
-		var size = this.value.length;
-		var maxInput = JStuff.util.maxInput;
+	function rgInputChange(event)
+	{
+		if(this.value.length > 12)
+		{
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
 
-		if(key == keyCode["backspace"])
+		if(this.value.length == oldValue.length)
 			return;
 
-		numberMaskInput.numMaskTyping.call(this,event);
+		var inputCode = this.value.charCodeAt(currentCaretPos);
+		var inputValue = this.value.charAt(currentCaretPos);
+		var getUnicode = JStuff.util.getUnicode;
 
-		maxInput.call(this, 12, event);
 		
-		if(size == 2 || size == 6)
-			this.value = this.value + ".";
-		if(size == 10)
-			this.value = this.value + "-";
+		if(this.value.length == 12 && 11 == currentCaretPos
+			&& (inputValue == "x" || inputValue == "X"))
+		{
+			this.value = oldValue + "X";
+			return;
+		}
+		if(inputCode >= getUnicode("0") && inputCode <= getUnicode("9"))
+		{
+			var length = this.value.length;
+			if(length == 3 || length == 7)
+			{
+				this.value = oldValue + "."+inputValue;
+				return;
+			}
+
+			if(length == 11)
+			{
+				this.value = oldValue + "-"+inputValue;
+				return;
+			}
+
+			return;
+		}
+
+		this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+		JStuff.util.setCaretPosition(this,currentCaretPos);		
+	}
+   function rgTyping(event)
+   {
+		currentCaretPos = JStuff.util.getCaretPosition(this);
+		oldValue = this.value;
+
+		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
+
+		if(key == keyCode["left"] || key == keyCode["right"])
+		{
+			event.preventDefault();
+			return;
+		}
+
+		if(currentCaretPos < this.value.length)
+		{
+			JStuff.util.setCaretPosition(this,this.value.length);
+		}
    }
 
    function turnOn(idList)
@@ -31,11 +74,10 @@ JStuff.rgInput = function()
 			var obj = document.getElementById(id);
 			var numberMaskInput = JStuff.util.numberMaskInput;
 
-			obj.onkeypress = rgTyping;
-			obj.onkeyup = numberMaskInput.numMaskKeyUp;
-			obj.onkeydown = numberMaskInput.numMaskKeyDown;
-			obj.onmousedown = numberMaskInput.numMaskMouseDown;
-			obj.onmouseup = numberMaskInput.numMaskMouseUp;
+			obj.onkeydown = rgTyping;
+			obj.oninput = rgInputChange;
+			//obj.onmousedown = numberMaskInput.numMaskMouseDown;
+			//obj.onmouseup = numberMaskInput.numMaskMouseUp;
 		}
 
 		if(typeof(idList) != 'string')

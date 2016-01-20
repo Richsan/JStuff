@@ -3,64 +3,57 @@ if(!JStuff)
 
 JStuff.alphabeticInput = function() 
 {
-   
-   var shiftIsPressed = false;
+	var oldValue;
+	var currentCaretPos;
+
+	function alphabeticInputChange(event)
+	{
+		if(this.value.length > this.maxChars)
+		{
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
 
 
-   function alphabeticTyping(event)
+		if(this.value.length <= oldValue.length)
+			return;
+
+		var inputCode = this.value.charCodeAt(currentCaretPos);
+		var inputValue = this.value.charAt(currentCaretPos);
+		var getUnicode = JStuff.util.getUnicode;
+
+		if(inputCode >= getUnicode("a") && inputCode <= getUnicode("z"))
+			return;
+
+		if(inputCode >= getUnicode("A") && inputCode <= getUnicode("Z"))
+			return;
+
+		if(this.exceptList.indexOf(inputValue) >= 0)
+			return;
+
+		this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+		JStuff.util.setCaretPosition(this,currentCaretPos);
+		
+	}
+ 
+	function alphabeticTyping(event)
    {
-		var key = event.keyCode || event.charCode;
-		var keyCode = JStuff.util.keyCode;
-		var isCursorMoveORBackspaceDel = JStuff.util.isCursorMoveORBackspaceDel;
-		var getCaretPosition = JStuff.util.getCaretPosition;
-		var keyCodeIsAlpha = JStuff.util.isAlpha;
-		var exceptionListEval = JStuff.util.exceptionListEval;
-		var maxInput = JStuff.util.maxInput;
-
-		if(isCursorMoveORBackspaceDel(key))
-			return;
-
-		if(key == keyCode["enter"] || key == keyCode["tab"])
-			return;
-
-		maxInput.call(this, this.maxChars,event);
+		currentCaretPos = JStuff.util.getCaretPosition(this);
+		oldValue = this.value;
+	}
 		
-		if(keyCodeIsAlpha(key))
-			return;
-		
-		exceptionListEval.call(this,this.exceptList,event,getCaretPosition(this));
-   }
 
    function turnOn(idList, properties)
    {
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
-			var getCaretPosition = JStuff.util.getCaretPosition;
-			var exceptionListEval = JStuff.util.exceptionListEval;
-
+		
 			obj.exceptList = properties.exceptionList;
 			obj.maxChars  = properties.maxLength;
-			obj.onkeypress = alphabeticTyping.bind(obj);
-			obj.onkeyup = function(event){var key = event.keyCode || event.charCode; if(key == 16)shiftIsPressed = false;};
-
-			//That's for semicolon/dot/accent keys
-			obj.onkeydown = function(event)
-			{
-				var key = event.keyCode || event.charCode;
-				if(key == 16)
-					shiftIsPressed = true;
-
-				if((shiftIsPressed && key == 53) && (obj.exceptList.indexOf("%") === -1))
-					event.preventDefault();
-
-				if(key == 229)
-					event.preventDefault();
-				if((key == 192) || (key == 229 || key == 0 || key == 222) || (key == 190))
-					exceptionListEval.call(this,obj.exceptList,event,getCaretPosition(this));
-			};
-		
-	
+			obj.onkeydown = alphabeticTyping;
+			obj.oninput = alphabeticInputChange;
 		}
 
 		if(typeof(idList) != 'string')

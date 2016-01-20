@@ -1,7 +1,7 @@
 window.onload = function(){
 
-   JStuff.numberInput.turnOn(["num"],{limit: 12,exceptionList: ["a"], maxLength: 5});
-   JStuff.alphabeticInput.turnOn(["letras"], {exceptionList: ["1",";","\u00E3","\u00C7","\u00E7"," ","\""]});
+   JStuff.numberInput.turnOn(["num"],{limit: 12,exceptionList: ["a","\u00E3"], maxLength: 5});
+   JStuff.alphabeticInput.turnOn(["letras"], {maxLength: 5,exceptionList: ["1",";","\u00E3","\u00C7","\u00E7"," ","\""]});
    JStuff.priceInput.turnOn("preco");
    JStuff.rgInput.turnOn(["rg"]);
    JStuff.dateInput.turnOn(["dt"],{dateFormat: "LittleEndian", separator: "-"});
