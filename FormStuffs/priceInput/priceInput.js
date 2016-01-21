@@ -1,131 +1,187 @@
 if(!JStuff)
 	var JStuff = {};
 
-var moneySymbols = 
-	{
-		"real": {text: "R$ ", separator: ",", regexp1: /^R\$\s/, regexp2: /R\$ [,|.]/},
-		"dollar": {text: "$ ", separator: ".", regexp1: /^\$\s/, regexp2: /\$ [,|.]/},
-		"euro": {text: '\u20AC'+" ", separator: ".", regexp1: /^\u20AC\s/, regexp2: /\u20AC [,|.]/},
-		"yen": {text: '\u00A5'+" ", separator: ".", regexp1: /^\u00A5\s/, regexp2: /\u00A5 [,|.]/}
-		
-	};
-
 
 JStuff.priceInput = function()
 {
-   var  symbol = moneySymbols["real"];
-   var shiftIsPressed = false;
+	var moneySymbols = 
+	{
+		"real": {text: "R$ ", separator: ","},
+		"dollar": {text: "$ ", separator: "."},
+		"euro": {text: '\u20AC'+" ", separator: "."},
+		"yen": {text: '\u00A5'+" ", separator: "."}
+	};
+
+
+   var  symbol = moneySymbols["dollar"];
+   var shiftPressed = false;
    var mousedown = false;
+	var currentCaretPos;
+	var oldValue;
+	var delPressed = false;
 
-   function priceTyping(symbol, event)
-   {
-		var regexp = /[,|.]/, regexp2 = /[,|.]\d\d/;
-		var key = event.keyCode || event.charCode;
-
-		if(!onlyNumbers(key, event))
+	function backspaceVerification()
+	{
+		var inputValue = this.value.charAt(currentCaretPos);
+		var size = this.value.length;
+		var regexp = /\s[, | .]/;
+		if(size == 0)
 			return;
+
+		if(regexp.test(this.value))
+			this.value = "";
 		
-
-		if(this.value == "")
+		if(oldValue.charAt(size) == symbol.separator && currentCaretPos == (size+1))
 		{
-			this.value = symbol.text;
-		}
-
-		else if(getCaretPosition(this) < 3)
-		{
-			if(key != keyAscii["backspace"]
-				&& key != keyAscii["right"] && key != keyAscii["left"])
-				event.preventDefault();
+			this.value = oldValue;
 			return;
 		}
 
-		if(getCaretPosition(this) >= this.value.length -2)
+		if(currentCaretPos <= symbol.text.length)
 		{
-			if(regexp2.test(this.value) && key != keyAscii["backspace"]
-				&& key != keyAscii["right"] && key != keyAscii["left"])
-			{
-				if(key != keyAscii["backspace"])
-					event.preventDefault();
-				return;
-			}
+			this.value = "";
+			return;
 		}
+
+		separatorPos = oldValue.indexOf(symbol.separator);
 		
+		if(currentCaretPos == separatorPos && delPressed)
+		{
+			this.value = oldValue;
+			delPressed = false;
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
+
+		if(currentCaretPos == (separatorPos + 1) && !delPressed)
+		{
+			this.value = oldValue;
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+		}
+	}
+
+	function completeNumber()
+	{
+		var regexp = /[,|.]/, regexp2 = /[,|.]\d\d$/ , regexp3 = /[, |.]\d$/;
+
+		if(this.value.length == 0)
+			return;
+
 		if(!regexp.test(this.value))
 		{
-			this.value = this.value + (key - 48) + symbol.separator+"00";
-			this.setSelectionRange(this.value.length -3,this.value.length -3);
-			event.preventDefault();
+			this.value = this.value + symbol.separator+"00";
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
 		}
-   }
 
-   function priceKeyDown(symbol,event)
-   {
-		var regexp = symbol.regexp1;
-		var key = event.keyCode || event.charCode;
+		if(!regexp2.test(this.value))
+		{
+			if(!regexp3.test(this.value))
+				this.value = this.value + "00";
+
+			else
+				this.value = this.value + "0";
+
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+		}
+
+	}
+	function priceInputChange(event)
+	{
+
+		if(this.value.length == oldValue.length)
+			return;
+
+
+		if(this.value.length < oldValue.length)
+		{
+			backspaceVerification.call(this);
+			return;
+		}
+
+		var inputCode = this.value.charCodeAt(currentCaretPos);
+		var inputValue = this.value.charAt(currentCaretPos);
+		var getUnicode = JStuff.util.getUnicode;
 		
-		if(mousedown)
+		if(inputCode < getUnicode("0") || inputCode > getUnicode("9"))
 		{
-			event.preventDefault();
+			this.value = oldValue;
+			JStuff.util.setCaretPosition(this,currentCaretPos);
 			return;
 		}
-		if(key == 16)
-			shiftIsPressed = true;
+		
 
-		if((shiftIsPressed && key == 53))
+		if(this.value.length == 1)
 		{
-			event.preventDefault();
-			return;
-		}
-		if(key == 229)
-		{
-			setTimeout(function(carretPos){
-				this.value = this.value.slice(0,carretPos) + this.value.slice(carretPos +1, this.value.length)
-				;}.bind(this,getCaretPosition(this)),0);
+			this.value = symbol.text + inputValue;
+			completeNumber.call(this);
+			JStuff.util.setCaretPosition(this,symbol.text.length+1);
 			return;
 		}
 
-		if((key == 192) || (key == 229 || key == 0 || key == 222) || (key == 190))
+		if(currentCaretPos >= oldValue.indexOf(symbol.separator))
 		{
-	      setTimeout(function(carretPos){
-				this.value = this.value.slice(0,carretPos) + this.value.slice(carretPos +1, this.value.length)
-				;}.bind(this,getCaretPosition(this)),0);
-			
-			event.preventDefault();
-			return;
-		}
-	   
+			var reg = /[. | ,]\d{0,2}$/;
 
-		if(key == keyAscii["del"])
-		{
-			event.preventDefault();
-			return;
-		}
-
-		if(key == keyAscii["backspace"])
-		{
-			if(regexp.test(this.value) && getCaretPosition(this) <= symbol.text.length)
+			if(!reg.test(this.value))
 			{
-				this.value = "";
-				return;
+				this.value = oldValue;
+				JStuff.util.setCaretPosition(this,currentCaretPos);
 			}
+		}
+		
+	}
 
-			if(this.value.charAt(getCaretPosition(this) - 1) == symbol.separator)
+   function priceTyping( event)
+   {
+		currentCaretPos = JStuff.util.getCaretPosition(this);
+		oldValue = this.value;
+
+		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
+
+		if(key == keyCode["del"])
+			delPressed = true;
+
+		if(key == keyCode["shift"])
+			shiftPressed = true;
+
+		if(key == keyCode["right"] || key == keyCode["left"])
+		{
+			if(shiftPressed)
 				event.preventDefault();
-
-			return;
 		}
 
-
+		if(key == keyCode["enter"])
+			completeNumber.call(this);
    }
 
-   function priceFocusOut(symbol,event)
-   {
-		var regexp3 = symbol.regexp2;
-		decimalTextComplete(this);
-		
-		if(regexp3.test(this.value))
-			this.value = symbol.text + "0" + this.value.substring(symbol.text.length);
+	function priceKeyUp(event)
+	{
+		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
 
+		if(key == keyCode["shift"])
+			shiftPressed = false;
+
+		if(key == keyCode["del"])
+			delPressed = false;
+	}
+
+	function priceMouseDown(event)
+	{ 
+		mousedown = true;
+	}
+
+	function priceMouseUp(event)
+	{
+		mousedown = false;
+		this.setSelectionRange(this.value.length,this.value.length);
+	}
+
+   function priceFocusOut(event)
+   {
+		completeNumber.call(this);
    }
 
    function turnOn(idList, moneyType)
@@ -137,13 +193,16 @@ JStuff.priceInput = function()
 		var atribEvents = function(element, index)
 		{
 			var obj = document.getElementById(element);
-			obj.onkeypress = priceTyping.bind(obj,symbol);
-			obj.onkeyup = function(event){var key = event.keyCode || event.charCode; if(key == 16)shiftIsPressed = false;};
-			obj.onkeydown = priceKeyDown.bind(obj, symbol);
-			obj.onblur = priceFocusOut.bind(obj, symbol);
-			obj.onmousedown = function(event){ mousedown = true;};
-			obj.onmouseup = function(event){mousedown = false; this.setSelectionRange(this.value.length,this.value.length);}
-		};
+
+			obj.oninput = priceInputChange;
+			obj.onkeydown = priceTyping;
+			obj.onkeyup = priceKeyUp;
+			obj.onblur = priceFocusOut;
+			obj.onmousedown = priceMouseDown;
+			obj.onmouseup = priceMouseUp;
+
+			obj.completeNumber = completeNumber;
+		}
 
 		if(typeof(idList) != 'string')
 			idList.forEach(atribEvents, this);
@@ -153,9 +212,3 @@ JStuff.priceInput = function()
 
    return {turnOn};
 }();
-
-/*window.onload = function(){
-
-  priceInput.eval(["preco"],"dolar");
-  };
-*/

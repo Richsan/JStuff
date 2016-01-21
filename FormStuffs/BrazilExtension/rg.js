@@ -1,120 +1,103 @@
 if(!JStuff)
 	var JStuff = {};
 
-var numberMaskInput = function() 
+JStuff.rgInput = function()
 {
-   var shiftIsPressed = false;
-   var mousedown = false;
+	var mousedown = false;
+	var oldValue;
+	var currentCaretPos;
 
-   function numMaskTyping(event)
-   {
-		var key = event.keyCode || event.charCode;
-
-		if(key == keyCode["enter"] || key == keyCode["tab"])
-			return;
-
-
-		if(key < keyCode["0"] || key > keyCode["9"])
+	function rgInputChange(event)
+	{
+		if(this.value.length > 12)
 		{
-			event.preventDefault();
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
 			return;
 		}
-   }
 
-   function numMaskKeyDown(event)
-   {
-		var key = event.keyCode || event.charCode;
+		if(this.value.length == oldValue.length)
+			return;
+
+		var inputCode = this.value.charCodeAt(currentCaretPos);
+		var inputValue = this.value.charAt(currentCaretPos);
+		var getUnicode = JStuff.util.getUnicode;
+
 		
-		if(mousedown)
+		if(this.value.length == 12 && 11 == currentCaretPos
+			&& (inputValue == "x" || inputValue == "X"))
 		{
-			event.preventDefault();
+			this.value = oldValue + "X";
 			return;
 		}
-		if(key == keyCode["left"])
+		if(inputCode >= getUnicode("0") && inputCode <= getUnicode("9"))
 		{
-			event.preventDefault();
-			return;
-		}
-		
-		if(key == 16)
-		{
-			shiftIsPressed = true;
+			var length = this.value.length;
+			if(length == 3 || length == 7)
+			{
+				this.value = oldValue + "."+inputValue;
+				return;
+			}
+
+			if(length == 11)
+			{
+				this.value = oldValue + "-"+inputValue;
+				return;
+			}
+
 			return;
 		}
 
-		if((shiftIsPressed && key == 53))
-		{
-			event.preventDefault();
-			return;
-		}
-		if(key == 229)
-		{
-			setTimeout(function(carretPos){
-				this.value = this.value.slice(0,carretPos) + this.value.slice(carretPos +1, this.value.length)
-				;}.bind(this,getCaretPosition(this)),0);
-			return;
-		}
+		this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+		JStuff.util.setCaretPosition(this,currentCaretPos);		
+	}
 
-		if((key == 192) || (key == 229 || key == 0 || key == 222) || (key == 190))
-		{
-			setTimeout(function(carretPos){
-				this.value = this.value.slice(0,carretPos) + this.value.slice(carretPos +1, this.value.length)
-				;}.bind(this,getCaretPosition(this)),0);
-			
-			event.preventDefault();
-			return;
-		}
-   }
-   
-   function numMaskKeyUp(event)
-   {
-		var key = event.keyCode || event.charCode;
-		if(key == 16)
-			shiftIsPressed = false;
-   }
 
-   function numMaskMouseDown(event)
+   function rgMouseDown(event)
    {
 		mousedown = true;
    }
 
-   function numMaskMouseUp(event)
+	function rgMouseUp(event)
    {
 		mousedown = false;
-		this.setSelectionRange(this.value.length,this.value.length);
+		JStuff.util.setCaretPosition(this,this.value.length);
    }
-   return {numMaskTyping, numMaskKeyDown, numMaskKeyUp, numMaskMouseDown, numMaskMouseUp};
-}();
 
-
-JStuff.rgInput = function()
-{
    function rgTyping(event)
    {
+		currentCaretPos = JStuff.util.getCaretPosition(this);
+		oldValue = this.value;
+
 		var key = event.keyCode || event.charCode;
-		if(key == keyCode["backspace"])
+		var keyCode = JStuff.util.keyCode;
+
+		if(key == keyCode["left"] || key == keyCode["right"])
+		{
+			event.preventDefault();
 			return;
+		}
 
-		numberMaskInput.numMaskTyping.call(this,event);
+		if(currentCaretPos < this.value.length)
+      {
+         JStuff.util.setCaretPosition(this,this.value.length);
+         currentCaretPos = this.value.length;
+         return;
+      }
 
-		maxInput.call(this, 12, event);
-		var size = this.value.length;
-		if(size == 2 || size == 6)
-			this.value = this.value + ".";
-		if(size == 10)
-			this.value = this.value + "-";
-   }
+	}
 
    function turnOn(idList)
    {
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
-			obj.onkeypress = rgTyping;
-			obj.onkeyup = numberMaskInput.numMaskKeyUp;
-			obj.onkeydown = numberMaskInput.numMaskKeyDown;
-			obj.onmousedown = numberMaskInput.numMaskMouseDown;
-			obj.onmouseup = numberMaskInput.numMaskMouseUp;
+			var numberMaskInput = JStuff.util.numberMaskInput;
+
+			obj.onkeydown = rgTyping;
+			obj.oninput = rgInputChange;
+			obj.onmousedown = rgMouseDown;
+			obj.onmouseup = rgMouseUp;
 		}
 
 		if(typeof(idList) != 'string')

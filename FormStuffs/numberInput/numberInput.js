@@ -1,62 +1,50 @@
 if(!JStuff)
 	var JStuff = {};
 
-function exceptionListEval(exceptList,event, carretPos)
-{
-   if(!exceptList)
-   {
-		event.preventDefault();
-		return;
-   }
-   setTimeout(function() { 
-      var charDigited = this.value.slice(carretPos,carretPos+1);
-		if(exceptList.indexOf(charDigited) == -1)
-			this.value = this.value.slice(0,carretPos) + this.value.slice(carretPos +1, this.value.length);
-   }.bind(this), 0);
-}
 
-function maxInput(maxChars, event)
-{
-   if(maxChars)
-   {
-		if(this.value.length >= maxChars)
-		{
-			event.preventDefault();
-			return;
-		}
-   }
-
-}
 JStuff.numberInput = function() 
 {
-   var shiftIsPressed = false;
-   
+	var oldValue;
+	var currentCaretPos;
+
+	function numberInputChange(event)
+	{
+
+		if(this.value.length > this.maxChars)
+		{
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
+
+		if(!this.exceptList && Number(this.value) > this.maxNum)
+		{
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
+
+		if(this.value.length <= oldValue.length)
+			return;
+
+		var inputCode = this.value.charCodeAt(currentCaretPos);
+		var inputValue = this.value.charAt(currentCaretPos);
+		var getUnicode = JStuff.util.getUnicode;
+
+		if(inputCode >= getUnicode("0") && inputCode <= getUnicode("9"))
+			return;
+
+		if(this.exceptList.indexOf(inputValue) >= 0)
+			return;
+
+		this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+		JStuff.util.setCaretPosition(this,currentCaretPos);
+	}
+
    function numberTyping(event)
    {
-		var key = event.keyCode || event.charCode;
-
-		if(isCursorMoveORBackspaceDel(key))
-			return;
-
-		if(key == keyCode["enter"] || key == keyCode["tab"])
-			return;
-
-		maxInput.call(this, this.maxChars, event);
-		if(key >= keyCode["0"] && key <= keyCode["9"])
-		{
-			if(this.maxNum && !this.exceptList)
-			{
-				setTimeout(function() { 
-					if(parseInt(this.value) > this.maxNum)
-						this.value = this.value.slice(0,this.value.length -1);
-				}.bind(this), 0);
-			}
-
-			return;
-
-		}
-		
-		exceptionListEval.call(this,this.exceptList,event,getCaretPosition(this));
+		currentCaretPos = JStuff.util.getCaretPosition(this);
+		oldValue = this.value;
    }
 
    function eval(idList, properties)
@@ -65,33 +53,12 @@ JStuff.numberInput = function()
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
+			
 			obj.exceptList = properties.exceptionList;
 			obj.maxChars  = properties.maxLength;
 			obj.maxNum = properties.limit;
-			obj.onkeypress = numberTyping.bind(obj);
-			//That's for semicolon/dot/accent keys
-			obj.onkeyup = function(event)
-			{
-				var key = event.keyCode || event.charCode;
-				if(key == 16)
-					shiftIsPressed = false;
-			};
-
-			obj.onkeydown = function(event)
-			{
-				var key = event.keyCode || event.charCode;
-				
-				if(key == 16)
-					shiftIsPressed = true;
-
-				if((shiftIsPressed && key == 53) && (obj.exceptList.indexOf("%") === -1))
-					event.preventDefault();
-				
-				if(key == 229)
-					event.preventDefault();
-				if((key == 192) || (key == 229 || key == 0 || key == 222) || (key == 190))
-					exceptionListEval.call(this,obj.exceptList,event,getCaretPosition(this));
-			};
+			obj.onkeydown = numberTyping.bind(obj);
+			obj.oninput = numberInputChange;
 		}
 
 		if(typeof(idList) != 'string')

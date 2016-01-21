@@ -7,6 +7,10 @@ JStuff.dateInput = function()
    var formats = {LittleEndian: {daySize: 1, monthSize: 4}, BigEndian: {daySize: 9, monthSize: 6},
 						MiddleEndian: {daySize: 4, monthSize: 1}};
 
+	var oldValue;
+	var currentCaretPos;
+	var mousedown = false;
+
    function inputVerification(size)
    {
 		var dayValue;
@@ -24,42 +28,46 @@ JStuff.dateInput = function()
 		}
 		if(size == this.dateFormat.daySize && (dayValue > 31 || dayValue == 0))
 		{
-			if(this.dateFormat.daySize == 1)
-				this.value = this.value.slice(0,1);
-			if(this.dateFormat.daySize == 9)
-				this.value = this.value.slice(0,9);
-			if(this.dateFormat.daySize == 4)
-				this.value = this.value.slice(0,4);
-			return;
+				this.value = this.value.slice(0,this.dateFormat.daySize);
+				return;
 		}
 		if(size == this.dateFormat.monthSize && (monthValue > 12 || monthValue == 0))
-		{
-			if(this.dateFormat.monthSize == 1)
-				this.value = this.value.slice(0,1);
-			if(this.dateFormat.monthSize == 4)
-				this.value = this.value.slice(0,4);
-			if(this.dateFormat.monthSize == 6)
-				this.value = this.value.slice(0,6);
-			
-			return;
-		}
-
+			this.value = this.value.slice(0,this.dateFormat.monthSize);
    }
 
-   function dateTyping(event)
+   function dateInputChange(event)
    {
-		var key = event.keyCode || event.charCode;
-		if(key == keyCode["backspace"])
+
+		if(this.value.length > 10)
+		{
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
+
+		if(this.value.length == oldValue.length)
 			return;
 
-		numberMaskInput.numMaskTyping.call(this,event);
-		maxInput.call(this, 10, event);
-		var size = this.value.length;
+		if(this.value.length < oldValue.length)
+			return;
+		var inputCode = this.value.charCodeAt(currentCaretPos);
+		var inputValue = this.value.charAt(currentCaretPos);
+		var getUnicode = JStuff.util.getUnicode;
+		var size = oldValue.length;
+
+		if(inputCode < getUnicode("0") || inputCode > getUnicode("9"))
+		{
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
+
 		if(size == this.dateFormat.daySize || size == this.dateFormat.monthSize)
 		{
-			setTimeout(inputVerification.bind(this,size),0);		
+			inputVerification.call(this,size);		
 			size = this.value.length;
 		}
+
 		if(this.dateFormat.daySize == 9)
 		{
 			if(size == 4 || size == 7)
@@ -70,10 +78,40 @@ JStuff.dateInput = function()
 
    }
 
-   function dateKeyDown(event)
+   function dateTyping(event)
    {
-		numberMaskInput.numMaskKeyDown.call(this,event);
+		currentCaretPos = JStuff.util.getCaretPosition(this);
+		oldValue = this.value;
+
+		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
+
+		if(key == keyCode["left"] || key == keyCode["right"])
+		{
+			event.preventDefault();
+			return;
+		}
+
+		if(currentCaretPos < this.value.length)
+      {
+         JStuff.util.setCaretPosition(this,this.value.length);
+         currentCaretPos = this.value.length;
+         return;
+      }
+
    }
+
+	function dateMouseDown(event)
+   {
+		mousedown = true;
+   }
+
+	function dateMouseUp(event)
+   {
+		mousedown = false;
+		JStuff.util.setCaretPosition(this,this.value.length);
+   }
+
 
    function getCurrentDate()
    {
@@ -105,20 +143,21 @@ JStuff.dateInput = function()
    {
 		
 		if(properties["separator"].length > 1)
-			throw "JStuff dateInput Error: separator should be a singe size character.";
+			throw "JStuff dateInput Error: separator should be a single size character.";
 		
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
+			var numberMaskInput = JStuff.util.numberMaskInput;
+			
 			obj.separator = "/";
 			obj.dateFormat = formats["MiddleEndian"];
 
-			obj.onkeyup = numberMaskInput.numMaskKeyUp;
-			obj.onkeydown = dateKeyDown;
-			obj.onmousedown = numberMaskInput.numMaskMouseDown;
-			obj.onmouseup = numberMaskInput.numMaskMouseUp;
+			obj.onkeydown = dateTyping;
 			obj.putCurrentDateValue = putCurrentDateValue;
-			obj.onkeypress = dateTyping;
+			obj.oninput = dateInputChange;
+			obj.onmousedown = dateMouseDown;
+			obj.onmouseup = dateMouseUp;
 
 			if(properties && properties.dateFormat && formats[properties.dateFormat])
 				obj.dateFormat = formats[properties.dateFormat];
