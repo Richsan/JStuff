@@ -4,26 +4,72 @@ if(!JStuff)
 
 JStuff.CEPInput = function()
 {
-   function CEPTyping(event)
-   {
-		var key = event.keyCode || event.charCode;
-		var keyCode = JStuff.util.keyCode;
-		var numberMaskInput = JStuff.util.numberMaskInput;
-		var maxInput = JStuff.util.maxInput;
-		var size = this.value.length;
+	var oldValue;
+	var currentCaretPos;
+	var mousedown = false;
 
-		if(key == keyCode["backspace"])
+	function CEPInputChange(event)
+	{
+		if(this.value.length > 9)
+		{
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
+
+		if(this.value.length <= oldValue.length)
 			return;
 
-		numberMaskInput.numMaskTyping.call(this,event);
+		var inputCode = this.value.charCodeAt(currentCaretPos);
+		var inputValue = this.value.charAt(currentCaretPos);
+		var getUnicode = JStuff.util.getUnicode;
+		var size = this.value.length;
+		
+		if(inputCode < getUnicode("0") || inputCode > getUnicode("9"))
+		{
+			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
+			JStuff.util.setCaretPosition(this,currentCaretPos);
+			return;
+		}
 
-		maxInput.call(this, 9, event);
-		
-		if(size == 5)
-			this.value = this.value + "-";
-		
+		if(size == 6)
+			this.value = oldValue + "-"+inputValue;
+
+	}
+   function CEPTyping(event)
+   {
+
+		currentCaretPos = JStuff.util.getCaretPosition(this);
+		oldValue = this.value;
+
+		var key = event.keyCode || event.charCode;
+		var keyCode = JStuff.util.keyCode;
+
+		if(key == keyCode["left"] || key == keyCode["right"])
+		{
+			event.preventDefault();
+			return;
+		}
+
+		if(currentCaretPos < this.value.length)
+      {
+         JStuff.util.setCaretPosition(this,this.value.length);
+         currentCaretPos = this.value.length;
+         return;
+      }		
    }
    
+	function CEPMouseDown(event)
+   {
+		mousedown = true;
+   }
+
+	function CEPMouseUp(event)
+   {
+		mousedown = false;
+		JStuff.util.setCaretPosition(this,this.value.length);
+   }
+
    function completeFields(fields,responseText)
    {
 		var address =  JSON.parse(responseText);
@@ -78,13 +124,11 @@ JStuff.CEPInput = function()
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
-			var numberMaskInput = JStuff.util.numberMaskInput;
 
-			obj.onkeypress = CEPTyping;
-			obj.onkeyup = numberMaskInput.numMaskKeyUp;
-			obj.onkeydown = numberMaskInput.numMaskKeyDown;
-			obj.onmousedown = numberMaskInput.numMaskMouseDown;
-			obj.onmouseup = numberMaskInput.numMaskMouseUp;
+			obj.onkeydown = CEPTyping;
+			obj.oninput = CEPInputChange;
+			obj.onmousedown = CEPMouseDown;
+			obj.onmouseup = CEPMouseUp;
 			obj.searchCep = searchCep;
 			obj.autocomplete = "false";
 		}

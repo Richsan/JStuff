@@ -10,6 +10,7 @@ window.onload = function(){
    var a = document.getElementById("dt");
    a.putCurrentDateValue();
 
+	document.getElementById("hora").putCurrentTimeValue();
    var c = document.getElementById("cep");
    c.onblur =  c.searchCep.bind(c,{endereco: "est", cidade: "cid", uf: "sigla", bairro:"bair"});
 

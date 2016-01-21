@@ -14,7 +14,7 @@ window.ontouchstart = function()
 JStuff.util = {};
 JStuff.util.keyCode = {"0":48, "9":57, ",":44, "backspace":8,"del" : 46,
 					".":46, "right" : 39, "left": 37, "a": 65, "z": 90, "A": 97, "Z": 122,
-					"ç": 231, "Ç": 199, "enter": 13, "tab": 9};
+					"ç": 231, "Ç": 199, "enter": 13, "tab": 9,"shift":16};
 
 JStuff.util.arrows = {right: 0, left: 0};
 

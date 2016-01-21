@@ -4,6 +4,9 @@ if(!JStuff)
 JStuff.rgInput = function()
 {
 	var mousedown = false;
+	var oldValue;
+	var currentCaretPos;
+
 	function rgInputChange(event)
 	{
 		if(this.value.length > 12)
