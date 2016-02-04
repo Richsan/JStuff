@@ -1,5 +1,5 @@
 if(!JStuff)
-	var JStuff = {};
+	throw "You must include JStuffUtil before!";
 
 JStuff.dateInput = function()
 {
@@ -68,13 +68,14 @@ JStuff.dateInput = function()
 			size = this.value.length;
 		}
 
+		size = this.value.length;
 		if(this.dateFormat.daySize == 9)
 		{
-			if(size == 4 || size == 7)
-				this.value = this.value + this.separator;
+			if(size == 5 || size == 8)
+				this.value = oldValue + this.separator + inputValue;
 		}
-		else if(size == 2 || size == 5)
-			this.value = this.value + this.separator;
+		else if(size == 3 || size == 6)
+			this.value = oldValue + this.separator + inputValue;
 
    }
 
@@ -141,7 +142,8 @@ JStuff.dateInput = function()
 
    function turnOn(idList, properties)
    {
-		
+		var addEventListener = JStuff.util.addEventListener;
+
 		if(properties["separator"].length > 1)
 			throw "JStuff dateInput Error: separator should be a single size character.";
 		
@@ -153,11 +155,13 @@ JStuff.dateInput = function()
 			obj.separator = "/";
 			obj.dateFormat = formats["MiddleEndian"];
 
-			obj.onkeydown = dateTyping;
+			addEventListener.call(obj,"keydown",dateTyping);
+			addEventListener.call(obj, "input",dateInputChange);
+			addEventListener.call(obj,"mousedown",dateMouseDown);
+			addEventListener.call(obj,"mouseup",dateMouseUp);
+			
 			obj.putCurrentDateValue = putCurrentDateValue;
-			obj.oninput = dateInputChange;
-			obj.onmousedown = dateMouseDown;
-			obj.onmouseup = dateMouseUp;
+			
 
 			if(properties && properties.dateFormat && formats[properties.dateFormat])
 				obj.dateFormat = formats[properties.dateFormat];

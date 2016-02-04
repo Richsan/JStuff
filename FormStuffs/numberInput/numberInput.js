@@ -1,5 +1,5 @@
 if(!JStuff)
-	var JStuff = {};
+	throw "You must include JStuffUtil before!";
 
 
 JStuff.numberInput = function() 
@@ -10,12 +10,9 @@ JStuff.numberInput = function()
 	function numberInputChange(event)
 	{
 
-		if(this.value.length > this.maxChars)
-		{
-			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
-			JStuff.util.setCaretPosition(this,currentCaretPos);
+		if(JStuff._util.maxChars.call(this,currentCaretPos))
 			return;
-		}
+		
 
 		if(!this.exceptList && Number(this.value) > this.maxNum)
 		{
@@ -49,6 +46,7 @@ JStuff.numberInput = function()
 
    function eval(idList, properties)
    {
+		var addEventListener = JStuff.util.addEventListener;
 
 		function atribEvents(id)
 		{
@@ -57,8 +55,8 @@ JStuff.numberInput = function()
 			obj.exceptList = properties.exceptionList;
 			obj.maxChars  = properties.maxLength;
 			obj.maxNum = properties.limit;
-			obj.onkeydown = numberTyping.bind(obj);
-			obj.oninput = numberInputChange;
+			addEventListener.call(obj,"keydown",numberTyping);
+			addEventListener.call(obj,"input",numberInputChange);
 		}
 
 		if(typeof(idList) != 'string')

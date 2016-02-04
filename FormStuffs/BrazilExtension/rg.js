@@ -1,5 +1,5 @@
 if(!JStuff)
-	var JStuff = {};
+	throw "You must include JStuffUtil before!";
 
 JStuff.rgInput = function()
 {
@@ -9,12 +9,8 @@ JStuff.rgInput = function()
 
 	function rgInputChange(event)
 	{
-		if(this.value.length > 12)
-		{
-			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
-			JStuff.util.setCaretPosition(this,currentCaretPos);
+		if(JStuff._util.maxChars.call(this,currentCaretPos,12))
 			return;
-		}
 
 		if(this.value.length == oldValue.length)
 			return;
@@ -89,15 +85,16 @@ JStuff.rgInput = function()
 
    function turnOn(idList)
    {
+		var addEventListener = JStuff.util.addEventListener;
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
 			var numberMaskInput = JStuff.util.numberMaskInput;
 
-			obj.onkeydown = rgTyping;
-			obj.oninput = rgInputChange;
-			obj.onmousedown = rgMouseDown;
-			obj.onmouseup = rgMouseUp;
+			addEventListener.call(obj,"keydown",rgTyping);
+			addEventListener.call(obj,"input",rgInputChange);
+			addEventListener.call(obj,"mousedown",rgMouseDown);
+			addEventListener.call(obj,"mouseup",rgMouseUp);
 		}
 
 		if(typeof(idList) != 'string')
