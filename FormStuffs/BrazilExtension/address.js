@@ -1,5 +1,5 @@
 if(!JStuff)
-	var JStuff = {};
+	throw "You must include JStuffUtil before!";
 
 
 JStuff.CEPInput = function()
@@ -10,12 +10,8 @@ JStuff.CEPInput = function()
 
 	function CEPInputChange(event)
 	{
-		if(this.value.length > 9)
-		{
-			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
-			JStuff.util.setCaretPosition(this,currentCaretPos);
+		if(JStuff._util.maxChars.call(this,currentCaretPos,9))
 			return;
-		}
 
 		if(this.value.length <= oldValue.length)
 			return;
@@ -72,6 +68,12 @@ JStuff.CEPInput = function()
 
    function completeFields(fields,responseText)
    {
+		if(responseText.match(/erro/))
+		{
+			console.log("erro no cep");
+			return;
+		}
+
 		var address =  JSON.parse(responseText);
 
 		if(address["erro"])
@@ -112,8 +114,8 @@ JStuff.CEPInput = function()
 		{
 			var cep = this.value.replace('-','');
 			var url = "http://cep.correiocontrol.com.br/"+cep+".json";
-			var request = createHTTPRequestObject();
-			request.onreadystatechange = stateChange.bind(request,completeFields.bind(this,fields));
+			var request = JStuff.createHTTPRequestObject();
+			request.onreadystatechange = JStuff.util.stateChange.bind(request,completeFields.bind(this,fields));
 			request.open("GET",url);
 			request.send();
 		}
@@ -121,14 +123,17 @@ JStuff.CEPInput = function()
 
    function turnOn(idList)
    {
+		var addEventListener = JStuff.util.addEventListener;
+
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
 
-			obj.onkeydown = CEPTyping;
-			obj.oninput = CEPInputChange;
-			obj.onmousedown = CEPMouseDown;
-			obj.onmouseup = CEPMouseUp;
+			addEventListener.call(obj,"keydown",CEPTyping);
+			addEventListener.call(obj,"input",CEPInputChange);
+			addEventListener.call(obj,"mousedown",CEPMouseDown);
+			addEventListener.call(obj,"mouseup",CEPMouseUp);
+			
 			obj.searchCep = searchCep;
 			obj.autocomplete = "false";
 		}

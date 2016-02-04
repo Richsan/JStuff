@@ -1,6 +1,5 @@
 if(!JStuff)
-	var JStuff = {};
-
+	throw "You must include JStuffUtil before!";
 
 JStuff.priceInput = function()
 {
@@ -189,17 +188,18 @@ JStuff.priceInput = function()
 		if(moneyType)
 			this.symbol = moneySymbols[moneyType]
 		
+		var addEventListener = JStuff.util.addEventListener;
 
 		var atribEvents = function(element, index)
 		{
 			var obj = document.getElementById(element);
 
-			obj.oninput = priceInputChange;
-			obj.onkeydown = priceTyping;
-			obj.onkeyup = priceKeyUp;
-			obj.onblur = priceFocusOut;
-			obj.onmousedown = priceMouseDown;
-			obj.onmouseup = priceMouseUp;
+			addEventListener.call(obj,"input",priceInputChange);
+			addEventListener.call(obj,"keydown",priceTyping);
+			addEventListener.call(obj,"keyup",priceKeyUp);
+			addEventListener.call(obj,"blur",priceFocusOut);
+			addEventListener.call(obj,"mousedown", priceMouseDown);
+			addEventListener.call(obj,"mouseup", priceMouseUp);
 
 			obj.completeNumber = completeNumber;
 		}

@@ -1,5 +1,5 @@
 if(!JStuff)
-	var JStuff = {}; 
+	throw "You must include JStuffUtil before!";
 
 JStuff.timeInput = function()
 {
@@ -61,13 +61,9 @@ JStuff.timeInput = function()
 
 	function timeInputChange(event)
 	{
-		if(this.value.length > 5)
-		{
-			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
-			JStuff.util.setCaretPosition(this,currentCaretPos);
+		if(JStuff._util.maxChars.call(this,currentCaretPos,5))
 			return;
-		}
-
+		
 		if(this.value.length <= oldValue.length)
 			return;
 
@@ -88,8 +84,8 @@ JStuff.timeInput = function()
 			inputVerification.call(this,size);
 			size = this.value.length;
 		}
-		if(size == 2)
-			this.value = this.value + ":";
+		if(this.value.length == 3)
+			this.value = oldValue+":"+inputValue;
    }
 
 	function timeMouseDown(event)
@@ -125,16 +121,17 @@ JStuff.timeInput = function()
    
    function turnOn(idList)
    {
+		var addEventListener = JStuff.util.addEventListener;
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
 			var numberMaskInput = JStuff.util.numberMaskInput;
 
-			obj.onkeydown = timeTyping;
-			obj.oninput = timeInputChange;
-			obj.onmousedown = timeMouseDown;
-			obj.onmouseup = timeMouseUp;
-
+			addEventListener.call(obj,"keydown",timeTyping);
+			addEventListener.call(obj,"input",timeInputChange);
+			addEventListener.call(obj,"mousedown",timeMouseDown);
+			addEventListener.call(obj,"mouseup",timeMouseUp);
+			
 			obj.putCurrentTimeValue = putCurrentTimeValue;
 		}
 
@@ -146,13 +143,3 @@ JStuff.timeInput = function()
    return {turnOn};
 
 }();
-
-
-
-
-
-
-
-
-
-

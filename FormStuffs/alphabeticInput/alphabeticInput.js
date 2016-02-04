@@ -1,5 +1,5 @@
 if(!JStuff)
-	var JStuff = {};
+	throw "You must include JStuffUtil before!";
 
 JStuff.alphabeticInput = function() 
 {
@@ -8,14 +8,9 @@ JStuff.alphabeticInput = function()
 
 	function alphabeticInputChange(event)
 	{
-		if(this.value.length > this.maxChars)
-		{
-			this.value = JStuff.util.removeChar(this.value, currentCaretPos);
-			JStuff.util.setCaretPosition(this,currentCaretPos);
+		if(JStuff._util.maxChars.call(this,currentCaretPos))
 			return;
-		}
-
-
+		
 		if(this.value.length <= oldValue.length)
 			return;
 
@@ -46,14 +41,15 @@ JStuff.alphabeticInput = function()
 
    function turnOn(idList, properties)
    {
+		var addEventListener = JStuff.util.addEventListener;
 		function atribEvents(id)
 		{
 			var obj = document.getElementById(id);
 		
 			obj.exceptList = properties.exceptionList;
 			obj.maxChars  = properties.maxLength;
-			obj.onkeydown = alphabeticTyping;
-			obj.oninput = alphabeticInputChange;
+			addEventListener.call(obj,"keydown",alphabeticTyping);
+			addEventListener.call(obj,"input",alphabeticInputChange);
 		}
 
 		if(typeof(idList) != 'string')
